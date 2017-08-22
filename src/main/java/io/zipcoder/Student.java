@@ -1,10 +1,12 @@
 package io.zipcoder;
 
-public class Student {
-    private String firstName;
+import java.lang.Comparable;
+
+public class Student implements Comparable<Student> {
+    
+	private String firstName;
     private String lastName;
     private int[] testScores;
-    // These are helper methods to assist us with array operations.
     private int totalExams;
     private int examsTaken;
 
@@ -14,8 +16,12 @@ public class Student {
      * @param firstName
      * @param lastName
      */
-    public Student(String firstName, String lastName) {
-
+    public Student(String firstName, String lastName) 
+    {
+    	this.firstName = firstName;
+    	this.lastName = lastName;
+    	this.totalExams = 0;
+    	this.examsTaken = 0;
     }
 
     /**
@@ -24,36 +30,70 @@ public class Student {
      * @param lastName
      * @param totalExams
      */
-    public Student(String firstName, String lastName, int totalExams) {
-
+    public Student(String firstName, String lastName, int totalExams) 
+    {
+    	this.firstName = firstName;
+    	this.lastName = lastName;
+    	this.totalExams = totalExams;
+    	this.examsTaken = 0;
+    	this.testScores = new int[totalExams];
     }
 
-    public String getFirstName() {
-        return null;
+    public String getFirstName() 
+    {
+        return firstName;
     }
 
-    public void setFirstName(String firstName) {
-
+    public void setFirstName(String firstName) 
+    {
+    	this.firstName = firstName;
     }
 
-    public String getLastName() {
-        return null;
+    public String getLastName() 
+    {
+        return lastName;
     }
 
-    public void setLastName(String lastName) {
-
+    public void setLastName(String lastName) 
+    {
+    	this.lastName = lastName;
     }
 
-    public int getTotalExams() {
-        return 0;
+    public int getTotalExams() 
+    {
+        return totalExams;
+    }
+    
+    public String getFullName()
+    {
+    	return this.getFirstName() + " " + this.getLastName();
     }
 
-    public void setTotalExams(int totalExams) {
-
+    public boolean setTotalExams(int totalExams) 
+    {
+    	this.totalExams = totalExams;
+    	if(examsTaken == 0)
+    	{
+	    	this.testScores = new int[totalExams]; // this will cause issues in the future.
+	    	return true;
+    	}
+    	else if (examsTaken<totalExams)
+    	{
+    		int[] newTestScores = new int[totalExams];
+    		for(int i=0; i<examsTaken; i++)
+    		{
+    			newTestScores[i] = testScores[i];
+    		}
+    		this.testScores = newTestScores;
+    		return true;
+    	}
+    	return false;
     }
+    
 
-    public int getExamsTaken() {
-        return 0;
+    public int getExamsTaken() 
+    {
+        return examsTaken;
     }
 
 
@@ -66,8 +106,18 @@ public class Student {
      * Test 3 -> 54
      * @return The test scores in a nice string representation.
      */
-    public String printExamScores() {
-        return null;
+    public String printExamScores() 
+    {	
+    	String response = "Test Scores:";
+    	if(examsTaken==0)
+    	{
+    		return "No exams taken" ;
+    	}
+    	for(int x=0; x<examsTaken; x++)
+    	{
+    		response += String.format("\nTest %d -> %d", x+1, testScores[x]);
+    	}
+        return response;
     }
 
     /**
@@ -78,7 +128,15 @@ public class Student {
      * @param score
      * @return A boolean based on if the operation worked or not.
      */
-    public boolean takeExam(int score) {
+    public boolean takeExam(int score) 
+    {	
+    	if(examsTaken<totalExams && score<=100 && score>=0)
+    	{
+    		this.testScores[examsTaken] = score;
+    		this.examsTaken += 1;
+    		return true;
+    	}
+    	System.out.print("Test has not been added to student's tests");	
         return false;
     }
 
@@ -90,8 +148,14 @@ public class Student {
      * @param newScore What we want to change it to.
      * @return A boolean based on if the operation worked or not.
      */
-    public boolean changeScoreForExam(int examNum, int newScore){
-        return false;
+    public boolean changeScoreForExam(int examNum, int newScore)
+    {
+    	if(examNum<=examsTaken && newScore<=100 && newScore>=0)
+    	{
+    		testScores[examNum-1] = newScore;
+    		return true;
+    	}
+    	return false;
     }
 
     /**
@@ -100,6 +164,33 @@ public class Student {
      * @return The average for all the exams a student has taken.
      */
     public double getAverage() {
-        return 100.0;
+    	double num = 0;
+    	
+    	if(examsTaken==0)
+    	{
+    		return 100.0;
+    	}
+    	
+    	for(int x=0; x<examsTaken; x++)
+    	{
+    		num += testScores[x];
+    	}
+    	return num/examsTaken;
     }
+    
+	public int compareTo(Student other) {
+		// Compare by average
+		return Double.compare(getAverage(), other.getAverage());
+	}
+	
+	public int compareToFullName(Student other) 
+	{
+		// Compare full names - by last name first.
+
+		// if last names are equal compare by firstnames, otherwise compare by last names.
+		int i = lastName.compareTo(other.lastName) == 0? firstName.compareTo(other.firstName): lastName.compareTo(other.lastName); 
+
+		return i;
+	}
+	
 }

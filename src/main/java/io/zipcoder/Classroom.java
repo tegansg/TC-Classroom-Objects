@@ -1,32 +1,57 @@
 package io.zipcoder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Classroom {
     private Student[] students;
-    // Helper fields
     private int studentsEnrolled;
     private int maxStudents;
 
     /**
      * Empty constructor.  You get to decide what max students should default to.
      */
-    public Classroom() {
-
+    public Classroom() 
+    {
+    	this.maxStudents = 30;
+    	this.students = new Student[maxStudents];
+    	this.studentsEnrolled = 0;
     }
 
     /**
-     * Constructor where the caller defines wht maxStudents is.
+     * Constructor where the caller defines what maxStudents is.
      * @param maxStudents
      */
-    public Classroom(int maxStudents) {
-
+    public Classroom(int maxStudents) 
+    {
+    	this.maxStudents = maxStudents;
+    	this.students = new Student[maxStudents];
+    	this.studentsEnrolled = 0;
     }
 
     /**
      * Constructor that builds a class from an existing Student array.
      * @param students
      */
-    public Classroom(Student[] students) {
-
+    public Classroom(Student[] students) 
+    {
+    	this.students = students;
+    	this.maxStudents = students.length;
+    	this.studentsEnrolled = numberOfStudents(students);
+    	
+    }
+    
+    private int numberOfStudents(Student[] students)
+    {
+    	int number = 0;
+    	for(int x=0; x<students.length; x++)
+    	{
+    		if(!students[x].equals(null))
+    		{
+    			number += 1;
+    		}
+    	}
+    	return number;
     }
 
     /**
@@ -35,8 +60,15 @@ public class Classroom {
      * @param student
      * @return
      */
-    public boolean addStudent(Student student) {
-        return false;
+    public boolean addStudent(Student student) 
+    {	
+    	if(studentsEnrolled<maxStudents)
+    	{
+	    	this.students[studentsEnrolled] = student;
+			this.studentsEnrolled += 1;
+			return true;
+    	}
+        return false;    
     }
 
     /**
@@ -48,15 +80,42 @@ public class Classroom {
      * @param lastName
      * @return
      */
-    public Student removeStudent(String firstName, String lastName) {
-        return null;
+    public Student removeStudent(String firstName, String lastName) 
+    {
+    	String fullName = firstName + " " + lastName;
+        for(int x=0; x<studentsEnrolled; x++)
+        {
+        	if(students[x].getFullName().equals(fullName))
+        	{
+        		for(int i=x; i<studentsEnrolled-1; i++)
+        		{
+        			students[i]=students[i+1];
+        		}
+        		Student response = students[x];
+        		students[studentsEnrolled-1] = null;
+        		return response;
+        	}
+        }
+    	return null;
     }
 
     /**
      * Return the average score of all of the student's average scores.
      */
-    public double getClassAverage(){
-        return 100.0;
+    public double getClassAverage()
+    {
+    	double num = 0;
+    	
+    	if(studentsEnrolled==0) // add a condition
+    	{
+    		return 100.0;
+    	}
+    	
+    	for(int x=0; x<studentsEnrolled; x++)
+    	{
+    		num += students[x].getAverage();
+    	}
+    	return num/studentsEnrolled;
     }
 
     /**
@@ -73,15 +132,73 @@ public class Classroom {
      * @return
      */
     public String getClassScores(){
-        return null;
+    	String response = "Students:";
+    	if(studentsEnrolled==0)
+    	{
+    		return "No Students";
+    	}
+    	
+    	for(int x=0; x<studentsEnrolled; x++)
+    	{
+    		String fullname = students[x].getFullName();
+    		double avg = students[x].getAverage();
+    		response += String.format("\n%s -> %.1f", fullname, avg);
+    	}
+        return response;
     }
 
+    
     /**
      * Sorts the Students array from highest average to lowest, and ties are broken alphabetically.
      */
-    public void sortStudentsByScore() {
+    
+    
+    public void sortStudentsByScore() 
+    {
+    	List<Student> myList = new ArrayList<Student>(studentsEnrolled);
+    	myList.add(students[0]);
+    	
+    	for(int i = 1; i < studentsEnrolled; i++) 
+    	{
+    		Student student = students[i];
+    		int index = findNewIndex(student, myList, i);
+    		myList.add(index, student);
+    	}
 
+    	this.students = (Student[]) myList.toArray(students); // resets array	
     }
+    
+    
+    public int findNewIndex(Student student, List<Student> myList, int x)
+    {	
+		
+		for(int i = 0; i < x; i++) 
+		{
+			Student student2 = myList.get(i);
+			
+ 			if((student.compareTo(student2) > 0) // if students averages are higher
+ 				||
+ 				(student.compareTo(student2) == 0 && student.compareToFullName(student2)<0)) 
+ 				// if the students average is equal to the average in question and comes before the other student in the alphabet
+ 			{
+				return i; //add before
+			}		
+ 			
+		}
+		return x; // add at end
+    	
+    }
+    
+    
+ 
+    
+    
+    
+//	if(students[x+1].getAverage()>=highestSoFar.getAverage())
+//	{
+//		highestSoFar = students[x+1];
+//	}
+	
 
     /**
      * CHALLENGE METHOD: Don't stress on this.  It's just a little something to challenge you.
